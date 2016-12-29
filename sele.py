@@ -36,8 +36,6 @@ def get_total(search):
 def scrape_emails(search, totalamount, breaking, skip):
 	for a in range((int(totalamount)/100)+1):
 		if breaking == True: 
-			print 'There are Captcha now'
-			driver.close()
 			break
 
 		page_number = a*100
@@ -77,7 +75,7 @@ def scrape_emails(search, totalamount, breaking, skip):
 							wait(2.0, 2.5)
 							
 							if skip == 'y':
-								sleep(30)
+								sleep(15)
 							else:
 								try:
 									driver.switch_to_window(mainWin)
@@ -86,7 +84,9 @@ def scrape_emails(search, totalamount, breaking, skip):
 									iframes = s.find_all("iframe", attrs={'title': 'recaptcha challenge'})
 									secFrame = iframes[0].get('name')
 
-									if secFrame !=  None:
+									if secFrame:
+										print 'There is Captcha now, try again later'
+										driver.close()
 										breaking = True
 								except:
 									continue
@@ -99,7 +99,6 @@ def scrape_emails(search, totalamount, breaking, skip):
 					email = e.text
 					print email
 				except:
-					print 'Captcha skipped'
 					continue
 			except:
 				continue
@@ -112,8 +111,8 @@ def scrape_emails(search, totalamount, breaking, skip):
 if __name__=='__main__':
 	if len(sys.argv) == 1:
 		driver.close()
-		print 'Usage: python sele.py [search] [skip]'
-		print 'skip : y/n'
+		print 'Usage: python sele.py [search] [solve captcha]'
+		print 'solve captcha : y/n'
 		print 'search: word you want to search in the education section'
 
 	else: 
