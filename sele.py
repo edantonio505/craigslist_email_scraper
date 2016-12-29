@@ -92,7 +92,7 @@ def scrape_emails(search, totalamount, breaking, skip):
 
 							driver.switch_to_window(mainWin)
 					except:
-						continue
+						driver.switch_to_window(mainWin)
 
 					e = WebDriverWait(driver, 3).until(lambda driver: driver.find_element_by_class_name('anonemail'))
 					email = e.text
