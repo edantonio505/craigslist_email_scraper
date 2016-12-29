@@ -84,7 +84,7 @@ def scrape_emails(search, totalamount, breaking, skip):
 									secFrame = iframes[0].get('name')
 
 									if secFrame:
-										print 'There is Captcha now, try again later'
+										print 'There is Captcha now, try again later or try setting the solve captcha option as "y"'
 										driver.close()
 										breaking = True
 								except:
