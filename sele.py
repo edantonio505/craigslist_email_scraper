@@ -5,7 +5,6 @@ from random import uniform, randint
 import sys
 #selenium
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.action_chains import ActionChains
 
@@ -111,9 +110,13 @@ def scrape_emails(search, totalamount, breaking, skip):
 if __name__=='__main__':
 	if len(sys.argv) == 1:
 		driver.close()
+		print ''
+		print ''
 		print 'Usage: python sele.py [search] [solve captcha]'
 		print 'solve captcha : y/n'
 		print 'search: word you want to search in the education section'
+		print ''
+		print ''
 
 	else: 
 		print 'This will search for emails in the education section...'
