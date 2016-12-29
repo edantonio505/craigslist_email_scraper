@@ -112,7 +112,9 @@ def scrape_emails(search, totalamount, breaking, skip):
 if __name__=='__main__':
 	if len(sys.argv) == 1:
 		driver.close()
-		print 'Need to search for something'
+		print 'Usage: python sele.py [search] [skip]'
+		print 'skip : y/n'
+		print 'search: word you want to search in the education section'
 
 	else: 
 		print 'This will search for emails in the education section...'
