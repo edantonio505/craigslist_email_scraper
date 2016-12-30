@@ -113,6 +113,8 @@ def scrape_emails(search, totalamount, breaking, skip):
 			else: 
 				print 'link already visited'
 
+	driver.close()
+
 
 
 
