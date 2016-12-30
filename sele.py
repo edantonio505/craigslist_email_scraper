@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 from time import sleep
 from random import uniform, randint
 import sys
+import dbfunctions
 #selenium
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
@@ -96,7 +97,11 @@ def scrape_emails(search, totalamount, breaking, skip):
 
 					e = WebDriverWait(driver, 3).until(lambda driver: driver.find_element_by_class_name('anonemail'))
 					email = e.text
-					print email
+					if dbfunctions.checkifexists(email):
+						print 'Email already saved'
+					else:
+						dbfunctions.create_email(email)
+						print 'saving email '+email
 				except:
 					continue
 			except:
