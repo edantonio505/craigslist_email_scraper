@@ -4,4 +4,4 @@ It searches for emails from employee seekers on Craigslist in the Education Sect
 It can be modified to search in any other sections too.
 
 # Usage
-`Python sele.py [search:word to search] [skip captcha: y/n]`
+`Python sele.py [search:word to search] [solve captcha: y/n]`
