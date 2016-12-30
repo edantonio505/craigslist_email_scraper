@@ -1,2 +1,2 @@
 # Usage
-Python sele.py [search] [skip captcha: y/n]
+Python sele.py [search:word to search] [skip captcha: y/n]
