@@ -4,15 +4,16 @@ from time import sleep
 from random import uniform, randint
 import sys
 import dbfunctions
+import os
 #selenium
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.action_chains import ActionChains
 
-
+cur_dir = os.path.dirname(os.path.realpath(__file__))
 base = 'https://newyork.craigslist.org'
 section = '/search/edu'
-driver = webdriver.Chrome(executable_path="./chromedriver")
+driver = webdriver.Chrome(executable_path="%s/chromedriver"%cur_dir)
 mainWin = driver.window_handles[0]
 breaking = False
 search = ''
@@ -51,62 +52,66 @@ def scrape_emails(search, totalamount, breaking, skip):
 			if breaking == True: 
 				break
 
-			try:
-				print 'trying next link'
-				driver.get(base+link.get('href'))
-				# click the reply button to get email
+			if not dbfunctions.checkifvisited(base+link.get('href')):
+				dbfunctions.save_visited(base+link.get('href'))
 				try:
-					button =  driver.find_element_by_class_name('reply_button')
-					button.click()
+					print 'trying next link'
+					driver.get(base+link.get('href'))
+					# click the reply button to get email
 					try:
-						captcha = WebDriverWait(driver, 2).until(lambda driver: driver.find_element_by_id('g-recaptcha'))
-						if captcha:
-							wait(1.0, 1.5)
-							recaptchaFrame = WebDriverWait(driver, 1).until(lambda driver: driver.find_element_by_tag_name('iframe'))
-							frameName = recaptchaFrame.get_attribute('name')
-							# move the driver to the iFrame... 
-							driver.switch_to_frame(frameName)
-							CheckBox = WebDriverWait(driver, 1).until(lambda driver: driver.find_element_by_id("recaptcha-anchor"))
-							
-							wait(1.0, 1.5)
-							hover(CheckBox)
-							wait(0.5, 0.7)
-							CheckBox.click()
-							wait(2.0, 2.5)
-							
-							if skip == 'y':
-								sleep(10)
-							else:
-								try:
-									driver.switch_to_window(mainWin)
-									html = driver.page_source
-									s = BeautifulSoup(html, 'html.parser')
-									iframes = s.find_all("iframe", attrs={'title': 'recaptcha challenge'})
-									secFrame = iframes[0].get('name')
+						button =  driver.find_element_by_class_name('reply_button')
+						button.click()
+						try:
+							captcha = WebDriverWait(driver, 2).until(lambda driver: driver.find_element_by_id('g-recaptcha'))
+							if captcha:
+								wait(1.0, 1.5)
+								recaptchaFrame = WebDriverWait(driver, 1).until(lambda driver: driver.find_element_by_tag_name('iframe'))
+								frameName = recaptchaFrame.get_attribute('name')
+								# move the driver to the iFrame... 
+								driver.switch_to_frame(frameName)
+								CheckBox = WebDriverWait(driver, 1).until(lambda driver: driver.find_element_by_id("recaptcha-anchor"))
+								
+								wait(1.0, 1.5)
+								hover(CheckBox)
+								wait(0.5, 0.7)
+								CheckBox.click()
+								wait(2.0, 2.5)
+								
+								if skip == 'y':
+									sleep(10)
+								else:
+									try:
+										driver.switch_to_window(mainWin)
+										html = driver.page_source
+										s = BeautifulSoup(html, 'html.parser')
+										iframes = s.find_all("iframe", attrs={'title': 'recaptcha challenge'})
+										secFrame = iframes[0].get('name')
 
-									if secFrame:
-										print 'There is Captcha now, try again later or try setting the solve captcha option as "y"'
-										driver.close()
-										breaking = True
-								except:
-									continue
+										if secFrame:
+											print 'There is Captcha now, try again later or try setting the solve captcha option as "y"'
+											driver.close()
+											breaking = True
+									except:
+										continue
 
+								driver.switch_to_window(mainWin)
+						except:
 							driver.switch_to_window(mainWin)
-					except:
-						driver.switch_to_window(mainWin)
 
-					e = WebDriverWait(driver, 3).until(lambda driver: driver.find_element_by_class_name('anonemail'))
-					email = e.text
-					if dbfunctions.checkifexists(email):
-						print 'Email already saved'
-					else:
-						dbfunctions.create_email(email)
-						print 'saving email '+email
+						e = WebDriverWait(driver, 3).until(lambda driver: driver.find_element_by_class_name('anonemail'))
+						email = e.text
+						if dbfunctions.checkifexists(email):
+							print 'Email already saved'
+						else:
+							dbfunctions.create_email(email)
+							print 'saving email '+email
+					except:
+						continue
 				except:
 					continue
-			except:
-				continue
 
+			else: 
+				print 'link already visited'
 
 
 
