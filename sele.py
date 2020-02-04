@@ -34,29 +34,45 @@ def hover(element):
     hov = ActionChains(driver).move_to_element(element)
     hov.perform()
 
+
+
 def wait(a, b):
 	rand=uniform(a, b)
 	sleep(rand)
 
+
+
+
+
 def get_total(search, link):
+	totalamount = 1
 	url = base+section+"/"+link+'?query='+search.replace(" ", "+")+"&is_paid=all"
 	r = requests.get(url)
 	soup = BeautifulSoup(r.content, 'html.parser')
 	total = soup.find_all('span', attrs={'class':'totalcount'})
 	totalcount = total[0].get_text()
-	return totalcount	
+	return int(totalcount)	
+
+
+
+
 
 def scrape_emails(search, totalamount, breaking, skip, link_section):
-	for a in range((int(totalamount)//100)+1):
+	if totalamount > 120:
+		totalamount = (int(totalamount) // 120)+1 
+	else:
+		totalamount = 1
+
+	for a in range(totalamount):
 		if breaking == True: 
 			break
 
-		page_number = a*100
-		page = '?=%s&query='%page_number
+		page_number = a*120
+		page = "&s={}".format(page_number)
 		if a == 0:
-			page = '?query='
+			page = ''
 
-		url = base+section+"/"+link_section+'?query='+search.replace(" ", "+")+"&is_paid=all"
+		url = base+section+"/"+link_section+'?query='+search.replace(" ", "+")+"&is_paid=all"+page
 		r = requests.get(url)
 		soup = BeautifulSoup(r.content, 'html.parser')
 		links = soup.find_all('a', attrs={'class':'hdrlnk'})
@@ -79,15 +95,13 @@ def scrape_emails(search, totalamount, breaking, skip, link_section):
 				try:
 					print('trying next link')
 					driver.get(link.get('href'))
-					
-					
+
 					try:
 						button =  driver.find_element_by_class_name('reply-button')
 						button.click()
-
-
-
-
+						# ===================================================================================================================
+						# 					CHECK IF THIS WORKS LATER
+						# ===================================================================================================================
 						# try:
 						# 	captcha = WebDriverWait(driver, 2).until(lambda driver: driver.find_element_by_id('g-recaptcha'))
 						# 	if captcha:
@@ -97,13 +111,12 @@ def scrape_emails(search, totalamount, breaking, skip, link_section):
 						# 		# move the driver to the iFrame... 
 						# 		driver.switch_to_frame(frameName)
 						# 		CheckBox = WebDriverWait(driver, 1).until(lambda driver: driver.find_element_by_id("recaptcha-anchor"))
-								
+
 						# 		wait(1.0, 1.5)
 						# 		hover(CheckBox)
 						# 		wait(0.5, 0.7)
 						# 		CheckBox.click()
 						# 		wait(2.0, 2.5)
-								
 						# 		if skip == 'y':
 						# 			sleep(10)
 						# 		else:
@@ -113,21 +126,17 @@ def scrape_emails(search, totalamount, breaking, skip, link_section):
 						# 				s = BeautifulSoup(html, 'html.parser')
 						# 				iframes = s.find_all("iframe", attrs={'title': 'recaptcha challenge'})
 						# 				secFrame = iframes[0].get('name')
-
 						# 				if secFrame:
 						# 					print 'There is Captcha now, try again later or try setting the solve captcha option as "y"'
 						# 					driver.close()
 						# 					breaking = True
 						# 			except:
 						# 				continue
-
 						# 		driver.switch_to_window(mainWin)
 						# except Exception as error:
 						# 	print(error, "error")	
 						# 	driver.switch_to_window(mainWin)
-						
-
-
+						# ===================================================================================================================
 
 						try: 
 							e = WebDriverWait(driver, 20).until(lambda driver: driver.find_element_by_class_name('reply-email-address'))
@@ -135,8 +144,6 @@ def scrape_emails(search, totalamount, breaking, skip, link_section):
 						except Exception as error:
 							print(error, "getting email")
 							continue
-
-
 
 						if dbfunctions.checkifexists(email):
 							print('Email already saved')
@@ -147,14 +154,9 @@ def scrape_emails(search, totalamount, breaking, skip, link_section):
 					except Exception as error:
 						print(error, "getting the result site")
 						continue
-
-
-
-
 				except Exception as error:
 					print(error, "trying result link")
 					continue
-
 			else: 
 				print('link already visited')
 
@@ -180,12 +182,14 @@ if __name__=='__main__':
 		skip = ''
 		if len(sys.argv) > 2:
 			skip = sys.argv[2]
-		
-
+	
 		for link in sections:
-			# time.sleep(10)
-			totalamount = get_total(search, link)
-			scrape_emails(search, totalamount, breaking, skip, link)
+			try: 
+				totalamount = get_total(search, link)
+				scrape_emails(search, totalamount, breaking, skip, link)
+			except Exception as error:
+				print(error, "getting total ammount")
+			
 		driver.quit()
 
 

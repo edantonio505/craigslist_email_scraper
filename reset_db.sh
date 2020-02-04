@@ -1,0 +1,1 @@
+rm tanyas_job.db && cat schema.sql | sqlite3 tanyas_job.db
